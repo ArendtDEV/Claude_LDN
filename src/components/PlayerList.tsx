@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus, Edit, Trash2, Eye } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Eye, Table, LayoutGrid, List } from 'lucide-react';
 import type { Player, Position } from '../types/Player';
 import { playerService } from '../services/playerService';
 
@@ -10,10 +10,13 @@ interface PlayerListProps {
   refresh?: number;
 }
 
+type ViewMode = 'table' | 'gallery' | 'list';
+
 export function PlayerList({ onEditPlayer, onViewPlayer, onAddPlayer, refresh }: PlayerListProps) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [positionFilter, setPositionFilter] = useState<string>('');
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
 
   const positions: Position[] = ['GK', 'LB', 'CB', 'RB', 'LWB', 'RWB', 'DM', 'CM', 'LM', 'RM', 'AM', 'LW', 'RW', 'ST', 'CF'];
 
@@ -67,35 +70,27 @@ export function PlayerList({ onEditPlayer, onViewPlayer, onAddPlayer, refresh }:
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Squad Players</h1>
-        <button
-          onClick={onAddPlayer}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-        >
-          <Plus className="w-5 h-5" />
-          Add Player
-        </button>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+    <div className="space-y-4">
+      {/* Toolbar - Notion Style */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2 flex-1">
+          {/* Search */}
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
               placeholder="Search players..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
+
+          {/* Position Filter */}
           <select
             value={positionFilter}
             onChange={(e) => setPositionFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">All Positions</option>
             {positions.map((pos) => (
@@ -105,90 +100,240 @@ export function PlayerList({ onEditPlayer, onViewPlayer, onAddPlayer, refresh }:
             ))}
           </select>
         </div>
+
+        <div className="flex items-center gap-2">
+          {/* View Mode Switcher */}
+          <div className="flex items-center border border-gray-200 rounded-md">
+            <button
+              onClick={() => setViewMode('table')}
+              className={`p-2 ${viewMode === 'table' ? 'bg-gray-100' : 'hover:bg-gray-50'} rounded-l-md transition`}
+              title="Table View"
+            >
+              <Table className="w-4 h-4 text-gray-700" />
+            </button>
+            <button
+              onClick={() => setViewMode('gallery')}
+              className={`p-2 ${viewMode === 'gallery' ? 'bg-gray-100' : 'hover:bg-gray-50'} transition border-x border-gray-200`}
+              title="Gallery View"
+            >
+              <LayoutGrid className="w-4 h-4 text-gray-700" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-2 ${viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-50'} rounded-r-md transition`}
+              title="List View"
+            >
+              <List className="w-4 h-4 text-gray-700" />
+            </button>
+          </div>
+
+          {/* Add Player Button */}
+          <button
+            onClick={onAddPlayer}
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            New
+          </button>
+        </div>
       </div>
 
-      {/* Player Cards */}
-      <div className="grid grid-cols-1 gap-4">
-        {players.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-            No players found
-          </div>
-        ) : (
-          players.map((player) => (
-            <div key={player.id} className="bg-white rounded-lg shadow hover:shadow-lg transition p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-6 flex-1">
-                  <div className="flex flex-col items-center">
-                    {player.shirtNumber && (
-                      <div className="text-3xl font-bold text-gray-900">{player.shirtNumber}</div>
-                    )}
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getPositionColor(player.position)}`}>
-                      {player.position}
-                    </span>
-                  </div>
+      {/* Table View */}
+      {viewMode === 'table' && (
+        <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">No.</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Name</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Position</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Age</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Nationality</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">CA</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">PA</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Value</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-600">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {players.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="px-4 py-8 text-center text-gray-500 text-sm">
+                    No players found
+                  </td>
+                </tr>
+              ) : (
+                players.map((player) => (
+                  <tr key={player.id} className="hover:bg-gray-50 transition">
+                    <td className="px-4 py-3 text-sm font-semibold text-gray-900">{player.shirtNumber || '-'}</td>
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{player.name}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${getPositionColor(player.position)}`}>
+                        {player.position}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{player.age}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{player.nationality}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900 font-medium">{player.currentAbility || 'N/A'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{player.potential || 'N/A'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900">£{player.value}M</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => onViewPlayer(player)}
+                          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded transition"
+                          title="View"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => onEditPlayer(player)}
+                          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded transition"
+                          title="Edit"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(player.id)}
+                          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded transition"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
+      {/* Gallery View */}
+      {viewMode === 'gallery' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {players.length === 0 ? (
+            <div className="col-span-full border border-gray-200 rounded-lg p-8 text-center text-gray-500 text-sm">
+              No players found
+            </div>
+          ) : (
+            players.map((player) => (
+              <div key={player.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition group">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="text-2xl font-bold text-gray-900">{player.shirtNumber || '?'}</div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{player.name}</h3>
+                      <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium mt-1 ${getPositionColor(player.position)}`}>
+                        {player.position}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="opacity-0 group-hover:opacity-100 transition flex gap-1">
+                    <button
+                      onClick={() => onViewPlayer(player)}
+                      className="p-1 text-gray-600 hover:bg-gray-100 rounded"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => onEditPlayer(player)}
+                      className="p-1 text-gray-600 hover:bg-gray-100 rounded"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(player.id)}
+                      className="p-1 text-gray-600 hover:bg-gray-100 rounded"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Age</span>
+                    <span className="text-gray-900">{player.age}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Nationality</span>
+                    <span className="text-gray-900">{player.nationality}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">CA / PA</span>
+                    <span className="text-gray-900">{player.currentAbility || 'N/A'} / {player.potential || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Value</span>
+                    <span className="text-gray-900 font-medium">£{player.value}M</span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* List View */}
+      {viewMode === 'list' && (
+        <div className="border border-gray-200 rounded-lg divide-y divide-gray-100">
+          {players.length === 0 ? (
+            <div className="p-8 text-center text-gray-500 text-sm">
+              No players found
+            </div>
+          ) : (
+            players.map((player) => (
+              <div key={player.id} className="p-4 hover:bg-gray-50 transition group flex items-center justify-between">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="text-xl font-bold text-gray-900 w-8 text-center">{player.shirtNumber || '-'}</div>
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-900">{player.name}</h3>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-semibold text-gray-900">{player.name}</h3>
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${getPositionColor(player.position)}`}>
+                        {player.position}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
                       <span>{player.age} years</span>
                       <span>•</span>
                       <span>{player.nationality}</span>
                       <span>•</span>
                       <span>CA: {player.currentAbility || 'N/A'}</span>
                       <span>•</span>
-                      <span>PA: {player.potential || 'N/A'}</span>
-                      <span>•</span>
                       <span>£{player.value}M</span>
                     </div>
                   </div>
-
-                  <div className="flex flex-col items-end gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-600">Ability:</span>
-                      <div className="w-24 bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-blue-600 h-2 rounded-full"
-                          style={{ width: `${((player.currentAbility || 0) / 200) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                    {player.morale && (
-                      <span className="text-sm text-gray-600">Morale: {player.morale}</span>
-                    )}
-                  </div>
                 </div>
-
-                <div className="flex items-center gap-2 ml-6">
+                <div className="opacity-0 group-hover:opacity-100 transition flex gap-1">
                   <button
                     onClick={() => onViewPlayer(player)}
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                    title="View Details"
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded"
                   >
-                    <Eye className="w-5 h-5" />
+                    <Eye className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => onEditPlayer(player)}
-                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
-                    title="Edit"
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded"
                   >
-                    <Edit className="w-5 h-5" />
+                    <Edit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(player.id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                    title="Delete"
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded"
                   >
-                    <Trash2 className="w-5 h-5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
-            </div>
-          ))
-        )}
-      </div>
+            ))
+          )}
+        </div>
+      )}
 
-      <div className="text-sm text-gray-600 text-center">
-        Showing {players.length} player{players.length !== 1 ? 's' : ''}
+      {/* Footer */}
+      <div className="text-sm text-gray-500 text-center py-2">
+        {players.length} player{players.length !== 1 ? 's' : ''}
       </div>
     </div>
   );

@@ -22,95 +22,83 @@ export function Dashboard() {
   }));
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">XITA LDN Dashboard</h1>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Players</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.totalPlayers}</p>
+    <div className="space-y-8">
+      {/* Stats Cards - Notion Style */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="border border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="bg-blue-50 p-2 rounded-md">
+              <Users className="w-5 h-5 text-blue-600" />
             </div>
-            <div className="bg-blue-100 p-3 rounded-full">
-              <Users className="w-6 h-6 text-blue-600" />
-            </div>
+            <p className="text-sm text-gray-600">Total Players</p>
           </div>
+          <p className="text-3xl font-bold text-gray-900">{stats.totalPlayers}</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Average Age</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.averageAge.toFixed(1)}</p>
+        <div className="border border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="bg-green-50 p-2 rounded-md">
+              <TrendingUp className="w-5 h-5 text-green-600" />
             </div>
-            <div className="bg-green-100 p-3 rounded-full">
-              <TrendingUp className="w-6 h-6 text-green-600" />
-            </div>
+            <p className="text-sm text-gray-600">Average Age</p>
           </div>
+          <p className="text-3xl font-bold text-gray-900">{stats.averageAge.toFixed(1)}</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Value</p>
-              <p className="text-3xl font-bold text-gray-900">£{stats.totalValue.toFixed(1)}M</p>
+        <div className="border border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="bg-yellow-50 p-2 rounded-md">
+              <DollarSign className="w-5 h-5 text-yellow-600" />
             </div>
-            <div className="bg-yellow-100 p-3 rounded-full">
-              <DollarSign className="w-6 h-6 text-yellow-600" />
-            </div>
+            <p className="text-sm text-gray-600">Total Value</p>
           </div>
+          <p className="text-3xl font-bold text-gray-900">£{stats.totalValue.toFixed(1)}M</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Avg Ability</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.averageCurrentAbility.toFixed(0)}</p>
+        <div className="border border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="bg-purple-50 p-2 rounded-md">
+              <Award className="w-5 h-5 text-purple-600" />
             </div>
-            <div className="bg-purple-100 p-3 rounded-full">
-              <Award className="w-6 h-6 text-purple-600" />
-            </div>
+            <p className="text-sm text-gray-600">Avg Ability</p>
           </div>
+          <p className="text-3xl font-bold text-gray-900">{stats.averageCurrentAbility.toFixed(0)}</p>
         </div>
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Position Distribution</h2>
+      {/* Charts - Notion Style */}
+      <div className="space-y-4">
+        <div className="border border-gray-200 rounded-lg p-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-6">Position Distribution</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={positionData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="position" />
-              <YAxis />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="position" fontSize={12} />
+              <YAxis fontSize={12} />
               <Tooltip />
-              <Bar dataKey="count" fill="#3b82f6" />
+              <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Squad Overview</h2>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-              <span className="text-gray-700">Squad Size</span>
-              <span className="font-bold text-gray-900">{stats.totalPlayers} players</span>
+        <div className="border border-gray-200 rounded-lg p-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-6">Squad Overview</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center py-3 border-b border-gray-100">
+              <span className="text-gray-600 text-sm">Squad Size</span>
+              <span className="font-semibold text-gray-900">{stats.totalPlayers} players</span>
             </div>
-            <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-              <span className="text-gray-700">Total Market Value</span>
-              <span className="font-bold text-gray-900">£{stats.totalValue.toFixed(1)}M</span>
+            <div className="flex justify-between items-center py-3 border-b border-gray-100">
+              <span className="text-gray-600 text-sm">Total Market Value</span>
+              <span className="font-semibold text-gray-900">£{stats.totalValue.toFixed(1)}M</span>
             </div>
-            <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-              <span className="text-gray-700">Average Squad Age</span>
-              <span className="font-bold text-gray-900">{stats.averageAge.toFixed(1)} years</span>
+            <div className="flex justify-between items-center py-3 border-b border-gray-100">
+              <span className="text-gray-600 text-sm">Average Squad Age</span>
+              <span className="font-semibold text-gray-900">{stats.averageAge.toFixed(1)} years</span>
             </div>
-            <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-              <span className="text-gray-700">Average Ability</span>
-              <span className="font-bold text-gray-900">{stats.averageCurrentAbility.toFixed(0)}/200</span>
+            <div className="flex justify-between items-center py-3">
+              <span className="text-gray-600 text-sm">Average Ability</span>
+              <span className="font-semibold text-gray-900">{stats.averageCurrentAbility.toFixed(0)}/200</span>
             </div>
           </div>
         </div>

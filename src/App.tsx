@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { LayoutDashboard, Users } from 'lucide-react';
+import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { PlayerList } from './components/PlayerList';
 import { PlayerDetail } from './components/PlayerDetail';
 import { PlayerForm } from './components/PlayerForm';
 import type { Player } from './types/Player';
 
-type View = 'dashboard' | 'players';
+type View = 'dashboard' | 'players' | 'analytics' | 'settings';
 
 function App() {
   const [currentView, setCurrentView] = useState<View>('dashboard');
@@ -40,63 +40,72 @@ function App() {
     setRefreshKey(prev => prev + 1);
   };
 
+  const getPageTitle = () => {
+    const titles: Record<View, string> = {
+      dashboard: 'Dashboard',
+      players: 'Players Database',
+      analytics: 'Analytics',
+      settings: 'Settings',
+    };
+    return titles[currentView];
+  };
+
+  const getPageIcon = () => {
+    const icons: Record<View, string> = {
+      dashboard: '🏠',
+      players: '⚽',
+      analytics: '📊',
+      settings: '⚙️',
+    };
+    return icons[currentView];
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-8">
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">X</span>
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">XITA LDN</h1>
-                  <p className="text-xs text-gray-500">Football Manager</p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setCurrentView('dashboard')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                    currentView === 'dashboard'
-                      ? 'bg-blue-50 text-blue-700 font-medium'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  <LayoutDashboard className="w-5 h-5" />
-                  Dashboard
-                </button>
-                <button
-                  onClick={() => setCurrentView('players')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                    currentView === 'players'
-                      ? 'bg-blue-50 text-blue-700 font-medium'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  <Users className="w-5 h-5" />
-                  Players
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-white flex">
+      {/* Sidebar */}
+      <Sidebar currentView={currentView} onNavigate={(view) => setCurrentView(view as View)} />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {currentView === 'dashboard' && <Dashboard />}
-        {currentView === 'players' && (
-          <PlayerList
-            onEditPlayer={handleEditPlayer}
-            onViewPlayer={handleViewPlayer}
-            onAddPlayer={handleAddPlayer}
-            refresh={refreshKey}
-          />
-        )}
-      </main>
+      <div className="flex-1 flex flex-col min-h-screen">
+        {/* Page Header - Notion Style */}
+        <div className="px-16 pt-16 pb-8">
+          <div className="max-w-5xl">
+            <div className="text-6xl mb-4">{getPageIcon()}</div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">{getPageTitle()}</h1>
+            <p className="text-gray-500 text-sm">
+              {currentView === 'dashboard' && 'Overview of your football club statistics'}
+              {currentView === 'players' && 'Manage your squad and player information'}
+              {currentView === 'analytics' && 'Detailed analytics and insights'}
+              {currentView === 'settings' && 'Configure your preferences'}
+            </p>
+          </div>
+        </div>
+
+        {/* Page Content */}
+        <main className="flex-1 px-16 pb-16">
+          <div className="max-w-5xl">
+            {currentView === 'dashboard' && <Dashboard />}
+            {currentView === 'players' && (
+              <PlayerList
+                onEditPlayer={handleEditPlayer}
+                onViewPlayer={handleViewPlayer}
+                onAddPlayer={handleAddPlayer}
+                refresh={refreshKey}
+              />
+            )}
+            {currentView === 'analytics' && (
+              <div className="bg-gray-50 rounded-lg p-8 text-center">
+                <p className="text-gray-500">Analytics view coming soon...</p>
+              </div>
+            )}
+            {currentView === 'settings' && (
+              <div className="bg-gray-50 rounded-lg p-8 text-center">
+                <p className="text-gray-500">Settings view coming soon...</p>
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
 
       {/* Modals */}
       {selectedPlayer && (
